@@ -1,0 +1,57 @@
+{
+  "name": "@cycjimmy/scroller",
+  "version": "0.0.1",
+  "description": "Accelerated panning and zooming for HTML and Canvas",
+  "main": "dist/scroller.cjs.js",
+  "module": "dist/scroller.esm.js",
+  "browser": "dist/scroller.umd.min.js",
+  "scripts": {
+    "start": "npm run dev",
+    "lint": "eslint -c .eslintrc 'src/**/*.js'",
+    "lint:fix": "eslint --fix -c .eslintrc 'src/**/*.js' --fix",
+    "dev": "cross-env NODE_ENV=development rollup -c rollup/rollup.config.dev.js --watch",
+    "build": "npm run build:prod:umd && npm run build:prod",
+    "build:prod": "cross-env NODE_ENV=production rollup -c rollup/rollup.config.prod.js",
+    "build:prod:umd": "cross-env NODE_ENV=production rollup -c rollup/rollup.config.dev.js",
+    "build:deployment": "cross-env NODE_ENV=deployment rollup -c rollup/rollup.config.dev.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cycjimmy/scroller.git"
+  },
+  "keywords": [
+    "scroller",
+    "mobile",
+    "animation"
+  ],
+  "author": "cycjimmy <cycjimmy@gmail.com> (https://github.com/cycjimmy)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cycjimmy/scroller/issues"
+  },
+  "homepage": "https://github.com/cycjimmy/scroller#readme",
+  "files": [
+    "/dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.8.7",
+    "@babel/preset-env": "^7.8.7",
+    "@cycjimmy/config-lib": "^1.6.1",
+    "cross-env": "^7.0.2",
+    "eslint": "^6.8.0",
+    "eslint-config-rollup": "^0.1.0",
+    "rollup": "^2.0.6",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-browsersync": "^1.1.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-copy": "^3.3.0",
+    "rollup-plugin-eslint": "^7.0.0",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-postcss": "^2.4.1",
+    "rollup-plugin-terser": "^5.3.0"
+  }
+}
