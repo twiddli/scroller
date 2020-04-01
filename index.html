@@ -1,122 +1,210 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-	<meta charset='utf-8'>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <link rel="shortcut icon" href="./favicon.ico">
+  <title>Scroller - Paging Y</title>
+  <style type="text/css">
+    #container {
+      width: 400px;
+      height: 400px;
+      border: 5px solid black;
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      overflow: hidden;
 
-	<title>zynga/scroller @ GitHub</title>
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      -o-user-select: none;
+      user-select: none;
+    }
 
-	<style type="text/css">
-		body {
-			margin-top: 1.0em;
-			background-color: #f1f0f4;
-			font-family: Helvetica, Arial, FreeSans, san-serif;
-			color: #000000;
-		}
-		#container {
-			margin: 0 auto;
-			width: 700px;
-		}
-		h1 { font-size: 3.8em; color: #0e0f0b; margin-bottom: 3px; }
-		h1 .small { font-size: 0.4em; }
-		h1 a { text-decoration: none }
-		h2 { font-size: 1.5em; color: #0e0f0b; }
-		h3 { text-align: center; color: #0e0f0b; }
-		a { color: #0e0f0b; }
-		.description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
-		.download { float: right; }
-		pre { background: #000; color: #fff; padding: 15px;}
-		hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
-		.footer { text-align:center; padding-top:30px; font-style: italic; }
-	</style>
+    #content {
+      background: white;
+      height: 4800px;
+      width: 400px;
+
+      -webkit-transform-origin: left top;
+      -webkit-transform: translateZ(0);
+      -moz-transform-origin: left top;
+      -moz-transform: translateZ(0);
+      -ms-transform-origin: left top;
+      -ms-transform: translateZ(0);
+      -o-transform-origin: left top;
+      -o-transform: translateZ(0);
+      transform-origin: left top;
+      transform: translateZ(0);
+    }
+
+    .cell {
+      height: 400px;
+      line-height: 400px;
+      width: 100%;
+      display: block;
+      text-align: center;
+      font-family: sans-serif;
+      font-size: 50px;
+    }
+
+  </style>
 </head>
 
 <body>
-	<a href="https://github.com/zynga/scroller"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+<div id="container">
+  <div id="content"></div>
+</div>
 
-	<div id="container">
+<script src="./scroller.umd.js"></script>
+<script>
+  /* DOM-based rendering (Uses 3D when available, falls back on margin when transform not available) */
+  var render = (function (global) {
 
-		<div class="download">
-			<a href="https://github.com/zynga/scroller/zipball/master">
-				<img border="0" width="90" src="https://github.com/images/modules/download/zip.png"></a>
-			<a href="https://github.com/zynga/scroller/tarball/master">
-				<img border="0" width="90" src="https://github.com/images/modules/download/tar.png"></a>
-		</div>
+    var docStyle = document.documentElement.style;
 
-		<h1><a href="https://github.com/zynga/scroller">Zynga Scroller</a></h1>
+    var engine;
+    if (global.opera && Object.prototype.toString.call(opera) === '[object Opera]') {
+      engine = 'presto';
+    } else if ('MozAppearance' in docStyle) {
+      engine = 'gecko';
+    } else if ('WebkitAppearance' in docStyle) {
+      engine = 'webkit';
+    } else if (typeof navigator.cpuClass === 'string') {
+      engine = 'trident';
+    }
 
-		<div class="description">
-			Accelerated panning and zooming for DOM and Canvas
-		</div>
-		
-		<h2>Dependencies</h2>
-		<p>Zynga Scroller has no dependencies to other JavaScript libraries. </p>
-		
-		
-		<h2>Demo</h2>
-		<ul>
-			<li><a href="demo/easyscroller.html">Easy Scroller (NEW)</a></li>
-			<li><a href="demo/dom.html">DOM Demo</a></li>
-			<li><a href="demo/canvas.html">Canvas Demo</a></li>
-			<li><a href="demo/dom-paging-x.html">Paging X-Axis</a></li>
-			<li><a href="demo/dom-paging-y.html">Paging Y-Axis</a></li>
-			<li><a href="demo/dom-snapping.html">Snapping to Cells</a></li>
-			<li><a href="demo/dom-list.html">Pull-to-Refresh</a></li>
-		</ul>
-		
-		
-		<h2>Install</h2>
-		<p>Just copy over the 3 JavaScript files from the "src" folder to your local JavaScript project and include them in the following order "Raf.js", "Animate.js" and "Scroller.js".</p>
+    var vendorPrefix = {
+      trident: 'ms',
+      gecko: 'Moz',
+      webkit: 'Webkit',
+      presto: 'O'
+    }[engine];
 
-		<p>It also supports <a href="https://github.com/zynga/jasy">Jasy</a> - our build system - to auto-detect dependencies. In this case you need to download <a href="https://github.com/wpbasti/core">Core</a> as well. <code>Animate.js</code> and <code>Raf.js</code> are then used from there.</p>
-		
+    var helperElem = document.createElement("div");
+    var undef;
 
-		
-		<h2>License</h2>
-		<pre>Copyright (c) 2011 Zynga Inc., http://zynga.com/
+    var perspectiveProperty = vendorPrefix + "Perspective";
+    var transformProperty = vendorPrefix + "Transform";
 
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
+    if (helperElem.style[perspectiveProperty] !== undef) {
 
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
+      return function (left, top, zoom) {
+        content.style[transformProperty] = 'translate3d(' + (-left) + 'px,' + (-top) + 'px,0) scale(' + zoom + ')';
+      };
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</pre>
-		
+    } else if (helperElem.style[transformProperty] !== undef) {
 
-		
-		<h2>Authors</h2>
-		<ul>
-			<li><a href="https://github.com/wpbasti">Sebastian Werner</a> (<a href="mailto:swerner@zynga.com">swerner@zynga.com</a>)</li>
-			<li><a href="https://github.com/pbakaus">Paul Bakaus</a> (<a href="mailto:pbakaus@zynga.com">pbakaus@zynga.com</a>)</li>
-		</ul>
-		
+      return function (left, top, zoom) {
+        content.style[transformProperty] = 'translate(' + (-left) + 'px,' + (-top) + 'px) scale(' + zoom + ')';
+      };
 
-		<h2>Download</h2>
-		<p>
-			You can download this project in either
-			<a href="https://github.com/zynga/scroller/zipball/master">zip</a> or
-			<a href="https://github.com/zynga/scroller/tarball/master">tar formats.
-		</p>
-		<p>You can also clone the project with <a href="http://git-scm.com">Git</a> by running:
-			<pre>$ git clone git://github.com/zynga/scroller</pre>
-		</p>
+    } else {
 
-		<div class="footer">
-			Get the source code on GitHub : <a href="https://github.com/zynga/scroller">zynga/scroller</a>
-		</div>
+      return function (left, top, zoom) {
+        content.style.marginLeft = left ? (-left / zoom) + 'px' : '';
+        content.style.marginTop = top ? (-top / zoom) + 'px' : '';
+        content.style.zoom = zoom || '';
+      };
 
-	</div>
+    }
+  })(this);
+</script>
 
+<script type="text/javascript">
+  var container = document.getElementById("container");
+  var content = document.getElementById("content");
+
+  // Content Generator
+  var size = 400;
+  var frag = document.createDocumentFragment();
+  for (var row = 0, cl = content.clientHeight / size; row < cl; row++) {
+    elem = document.createElement("div");
+    elem.className = "cell";
+    elem.style.backgroundColor = row % 2 > 0 ? "#ddd" : "";
+    elem.innerHTML = row;
+    frag.appendChild(elem);
+  }
+  content.appendChild(frag);
+
+  // Initialize Scroller
+  var scroller = new Scroller(render, {
+    scrollingX: false,
+    paging: true
+  });
+
+
+  // Setup Scroller
+  var rect = container.getBoundingClientRect();
+
+  scroller.setPosition(rect.left + container.clientLeft, rect.top + container.clientTop);
+  scroller.setDimensions(container.clientWidth, container.clientHeight, content.offsetWidth, content.offsetHeight);
+
+
+  // Event Handler
+
+  if ('ontouchstart' in window) {
+
+    container.addEventListener("touchstart", function (e) {
+      // Don't react if initial down happens on a form element
+      if (e.target.tagName.match(/input|textarea|select/i)) {
+        return;
+      }
+
+      scroller.doTouchStart(e.touches, e.timeStamp);
+      e.preventDefault();
+    }, false);
+
+    document.addEventListener("touchmove", function (e) {
+      scroller.doTouchMove(e.touches, e.timeStamp);
+    }, false);
+
+    document.addEventListener("touchend", function (e) {
+      scroller.doTouchEnd(e.timeStamp);
+    }, false);
+
+  } else {
+
+    var mousedown = false;
+
+    container.addEventListener("mousedown", function (e) {
+      // Don't react if initial down happens on a form element
+      if (e.target.tagName.match(/input|textarea|select/i)) {
+        return;
+      }
+
+      scroller.doTouchStart([{
+        pageX: e.pageX,
+        pageY: e.pageY
+      }], e.timeStamp);
+
+      mousedown = true;
+    }, false);
+
+    document.addEventListener("mousemove", function (e) {
+      if (!mousedown) {
+        return;
+      }
+
+      scroller.doTouchMove([{
+        pageX: e.pageX,
+        pageY: e.pageY
+      }], e.timeStamp);
+
+      mousedown = true;
+    }, false);
+
+    document.addEventListener("mouseup", function (e) {
+      if (!mousedown) {
+        return;
+      }
+
+      scroller.doTouchEnd(e.timeStamp);
+
+      mousedown = false;
+    }, false);
+  }
+</script>
 </body>
 </html>
