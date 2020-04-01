@@ -3,7 +3,6 @@
 [![build status][travis-image]][travis-url]
 [![libraries dependency status][libraries-status-image]][libraries-status-url]
 [![libraries sourcerank][libraries-sourcerank-image]][libraries-sourcerank-url]
-[![Coverage Status][coverage-image]][coverage-url]
 [![Release date][release-date-image]][release-url]
 [![rollup][rollup-image]][rollup-url]
 [![semantic-release][semantic-image]][semantic-url]
@@ -12,7 +11,7 @@
 
 A pure logic component for scrolling/zooming. It is independent of any specific kind of rendering or event system. 
 
-**This repository just has been forked from [Zynga/Scroller](https://github.com/pbakaus/scroller) and written by es module. And support es, cjs and umd module.**
+**This repository just has been forked from [Zynga/Scroller](https://github.com/pbakaus/scroller) and written by es module. And support es, cjs and umd module.**([Demo][github-pages-url])
 
 ## Features
 * Customizable enabling/disabling of scrolling for x-axis and y-axis
@@ -142,9 +141,6 @@ MIT © 2020 cycjimmy and 2011 Zynga
 [libraries-sourcerank-image]: https://img.shields.io/librariesio/sourcerank/npm/@cycjimmy/scroller
 [libraries-status-url]: https://libraries.io/github/cycjimmy/scroller
 [libraries-sourcerank-url]: https://libraries.io/npm/@cycjimmy%2Fscroller
-
-[coverage-image]: https://img.shields.io/coveralls/github/cycjimmy/scroller
-[coverage-url]: https://coveralls.io/github/cycjimmy/scroller
 
 [release-date-image]: https://img.shields.io/github/release-date/cycjimmy/scroller
 [release-url]: https://github.com/cycjimmy/scroller/releases
