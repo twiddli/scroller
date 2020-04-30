@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/cycjimmy/scroller/compare/v1.0.0...v1.1.0) (2020-04-30)
+
+
+### Features
+
+* use es6 class reconstruction ([b24f69b](https://github.com/cycjimmy/scroller/commit/b24f69b7a8c72c48462ae300e70b00754d8abf37))
+
 # 1.0.0 (2020-04-01)
 
 
