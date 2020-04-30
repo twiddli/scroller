@@ -8,6 +8,8 @@
  * Licensed under the MIT License.
  */
 
+import requestAnimationFrame from './requestAnimationFrame';
+
 /**
  * Generic animation class with support for dropped frames both optional easing and duration.
  *
@@ -21,84 +23,12 @@
 const time = Date.now || (() => +new Date());
 const desiredFrames = 60;
 const millisecondsPerSecond = 1000;
-let running = {};
-let counter = 1;
 
-const Animate = {
-  /**
-   * A requestAnimationFrame wrapper / polyfill.
-   *
-   * @param callback {Function} The callback to be invoked before the next repaint.
-   * @param root {HTMLElement} The root element for the repaint
-   */
-  requestAnimationFrame: (() => {
-    // Check for request animation Frame support
-    const requestFrame =
-      window.requestAnimationFrame ||
-      window.webkitRequestAnimationFrame ||
-      window.mozRequestAnimationFrame ||
-      window.oRequestAnimationFrame;
-    let isNative = !!requestFrame;
-
-    if (
-      requestFrame &&
-      !/requestAnimationFrame\(\)\s*\{\s*\[native code\]\s*\}/i.test(requestFrame.toString())
-    ) {
-      isNative = false;
-    }
-
-    if (isNative) {
-      return (callback, root) => {
-        requestFrame(callback, root);
-      };
-    }
-
-    const TARGET_FPS = 60;
-    let requests = {};
-    // eslint-disable-next-line no-unused-vars
-    let requestCount = 0;
-    let rafHandle = 1;
-    let intervalHandle = null;
-    let lastActive = +new Date();
-
-    // eslint-disable-next-line func-names
-    return function(callback) {
-      const callbackHandle = rafHandle++;
-
-      // Store callback
-      requests[callbackHandle] = callback;
-      requestCount++;
-
-      // Create timeout at first request
-      if (intervalHandle === null) {
-        intervalHandle = setInterval(() => {
-          // eslint-disable-next-line no-shadow
-          const time = +new Date();
-          const currentRequests = requests;
-
-          // Reset data structure before executing callbacks
-          requests = {};
-          requestCount = 0;
-
-          for (const key in currentRequests) {
-            if (currentRequests.hasOwnProperty(key)) {
-              currentRequests[key](time);
-              lastActive = time;
-            }
-          }
-
-          // Disable the timeout when nothing happens for a certain
-          // period of time
-          if (time - lastActive > 2500) {
-            clearInterval(intervalHandle);
-            intervalHandle = null;
-          }
-        }, 1000 / TARGET_FPS);
-      }
-
-      return callbackHandle;
-    };
-  })(),
+export default class Animate {
+  constructor() {
+    this.running = {};
+    this.counter = 1;
+  }
 
   /**
    * Stops the given animation.
@@ -107,13 +37,13 @@ const Animate = {
    * @return {Boolean} Whether the animation was stopped (aka, was running before)
    */
   stop(id) {
-    const cleared = running[id] != null;
+    const cleared = this.running[id] !== null;
     if (cleared) {
-      running[id] = null;
+      this.running[id] = null;
     }
 
     return cleared;
-  },
+  }
 
   /**
    * Whether the given animation is still running.
@@ -122,8 +52,8 @@ const Animate = {
    * @return {Boolean} Whether the animation is still running
    */
   isRunning(id) {
-    return running[id] != null;
-  },
+    return this.running[id] !== null;
+  }
 
   /**
    * Start the animation.
@@ -146,7 +76,7 @@ const Animate = {
     let lastFrame = start;
     let percent = 0;
     let dropCounter = 0;
-    const id = counter++;
+    const id = this.counter++;
 
     if (!root) {
       root = document.body;
@@ -156,14 +86,14 @@ const Animate = {
     if (id % 20 === 0) {
       const newRunning = {};
       // eslint-disable-next-line guard-for-in
-      for (const usedId in running) {
+      for (const usedId in this.running) {
         newRunning[usedId] = true;
       }
-      running = newRunning;
+      this.running = newRunning;
     }
 
     // This is the internal step method which is called every few milliseconds
-    const step = function(virtual) {
+    const step = (virtual) => {
       // Normalize virtual value
       const render = virtual !== true;
 
@@ -171,8 +101,8 @@ const Animate = {
       const now = time();
 
       // Verification is executed before next animation step
-      if (!running[id] || (verifyCallback && !verifyCallback(id))) {
-        running[id] = null;
+      if (!this.running[id] || (verifyCallback && !verifyCallback(id))) {
+        this.running[id] = null;
         // eslint-disable-next-line no-unused-expressions
         completedCallback &&
           completedCallback(
@@ -205,7 +135,7 @@ const Animate = {
       // Execute step callback, then...
       const value = easingMethod ? easingMethod(percent) : percent;
       if ((stepCallback(value, now, render) === false || percent === 1) && render) {
-        running[id] = null;
+        this.running[id] = null;
         // eslint-disable-next-line no-unused-expressions
         completedCallback &&
           completedCallback(
@@ -215,19 +145,17 @@ const Animate = {
           );
       } else if (render) {
         lastFrame = now;
-        Animate.requestAnimationFrame(step, root);
+        requestAnimationFrame(step, root);
       }
     };
 
     // Mark as running
-    running[id] = true;
+    this.running[id] = true;
 
     // Init first step
-    Animate.requestAnimationFrame(step, root);
+    requestAnimationFrame(step, root);
 
     // Return unique animation ID
     return id;
   }
-};
-
-export default Animate;
+}
