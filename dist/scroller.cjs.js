@@ -682,8 +682,7 @@ var _default = /*#__PURE__*/function () {
 
 
       var left = (originLeft + this.__scrollLeft) * level / oldLevel - originLeft;
-      var top = (originTop + this.__scrollTop) * level / oldLevel - originTop;
-      console.log([left, top]); // Limit x-axis
+      var top = (originTop + this.__scrollTop) * level / oldLevel - originTop; // Limit x-axis
 
       if (left > this.__maxScrollLef) {
         left = this.__maxScrollLef;
