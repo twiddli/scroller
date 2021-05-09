@@ -373,53 +373,54 @@ export default class {
    */
   zoomTo(level, animate, originLeft, originTop, callback) {
     if (!this.options.zooming) {
-      throw new Error('Zooming is not enabled!');
+      return;
     }
-
+  
     // Add callback if exists
     if (callback) {
       this.__zoomComplete = callback;
     }
-
+  
     // Stop deceleration
     if (this.__isDecelerating) {
       this.animate.stop(this.__isDecelerating);
       this.__isDecelerating = false;
     }
-
+  
     const oldLevel = this.__zoomLevel;
-
+  
+    // Limit level according to configuration
+    level = Math.max(Math.min(level, this.options.maxZoom), this.options.minZoom);
+  
     // Normalize input origin to center of viewport if not defined
     if (originLeft == null) {
       originLeft = this.__clientWidth / 2;
     }
-
+  
     if (originTop == null) {
       originTop = this.__clientHeight / 2;
     }
-
-    // Limit level according to configuration
-    level = Math.max(Math.min(level, this.options.maxZoom), this.options.minZoom);
-
-    // Recompute maximum values while temporary tweaking maximum scroll ranges
+  
     this.__computeScrollMax(level);
-
+  
     // Recompute left and top coordinates based on new zoom level
     let left = ((originLeft + this.__scrollLeft) * level) / oldLevel - originLeft;
     let top = ((originTop + this.__scrollTop) * level) / oldLevel - originTop;
 
+    console.log([left, top]);
+
     // Limit x-axis
-    if (left > this.__maxScrollLeft) {
-      left = this.__maxScrollLeft;
+    if (left > this.__maxScrollLef) {
+      left = this.__maxScrollLef;
     } else if (left < 0) {
-      left = 0;
+      left = Math.max(left, -this.__contentWidth);
     }
 
     // Limit y-axis
     if (top > this.__maxScrollTop) {
       top = this.__maxScrollTop;
     } else if (top < 0) {
-      top = 0;
+      top = Math.max(top, -this.__clientHeight);
     }
 
     // Push values out
