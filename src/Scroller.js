@@ -375,39 +375,37 @@ export default class {
     if (!this.options.zooming) {
       return;
     }
-  
+
     // Add callback if exists
     if (callback) {
       this.__zoomComplete = callback;
     }
-  
+
     // Stop deceleration
     if (this.__isDecelerating) {
       this.animate.stop(this.__isDecelerating);
       this.__isDecelerating = false;
     }
-  
+
     const oldLevel = this.__zoomLevel;
-  
+
     // Limit level according to configuration
     level = Math.max(Math.min(level, this.options.maxZoom), this.options.minZoom);
-  
+
     // Normalize input origin to center of viewport if not defined
     if (originLeft == null) {
       originLeft = this.__clientWidth / 2;
     }
-  
+
     if (originTop == null) {
       originTop = this.__clientHeight / 2;
     }
-  
+
     this.__computeScrollMax(level);
-  
+
     // Recompute left and top coordinates based on new zoom level
     let left = ((originLeft + this.__scrollLeft) * level) / oldLevel - originLeft;
     let top = ((originTop + this.__scrollTop) * level) / oldLevel - originTop;
-
-    console.log([left, top]);
 
     // Limit x-axis
     if (left > this.__maxScrollLef) {
