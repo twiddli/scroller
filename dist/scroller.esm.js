@@ -1215,7 +1215,7 @@ var _default = /*#__PURE__*/function () {
         this.__scheduledZoom = this.__zoomLevel = zoom; // Push values out
 
         if (this.__callback) {
-          self.__callback(left - this.__leftOffset, top - this.__topOffset, zoom);
+          this.__callback(left - this.__leftOffset, top - this.__topOffset, zoom);
         } // Fix max scroll ranges
 
 
