@@ -27,7 +27,7 @@ export default class {
 
       /** Enable scrolling on y-axis */
       scrollingY: true,
-      
+
       /** Enable content to center in client when zooming out */
       centering: false,
 
@@ -183,7 +183,7 @@ export default class {
 
     /** {Number} Scheduled zoom level (final scale when animating) */
     this.__scheduledZoom = 0;
-    
+
     /* {Number} Offset to center left position */
     this.__leftOffset = 0;
 
@@ -933,7 +933,11 @@ export default class {
 
           // Push values out
           if (this.__callback) {
-            this.__callback(this.__scrollLeft - this.__leftOffset, this.__scrollTop - this.__topOffset, this.__zoomLevel);
+            this.__callback(
+              this.__scrollLeft - this.__leftOffset,
+              this.__scrollTop - this.__topOffset,
+              this.__zoomLevel
+            );
           }
         }
       };
@@ -996,23 +1000,22 @@ export default class {
 
     this.__maxScrollLeft = Math.max(this.__contentWidth * zoomLevel - this.__clientWidth, 0);
     this.__maxScrollTop = Math.max(this.__contentHeight * zoomLevel - this.__clientHeight, 0);
-    
+
     let xoffset = 0;
     let yoffset = 0;
 
-    if(this.options.centering){
+    if (this.options.centering) {
+      if (this.__clientWidth > this.__contentWidth * this.__zoomLevel) {
+        xoffset = (this.__clientWidth - this.__contentWidth * this.__zoomLevel) / 2;
+      } else {
+        xoffset = 0;
+      }
 
-        if (this.__clientWidth > (this.__contentWidth*this.__zoomLevel)){
-            xoffset = (this.__clientWidth-(this.__contentWidth*this.__zoomLevel))/2;
-        } else {
-            xoffset = 0;
-        }
-
-        if (this.__clientHeight > (this.__contentHeight*this.__zoomLevel)){
-            yoffset = (this.__clientHeight-(this.__contentHeight*this.__zoomLevel))/2;
-        } else {
-            yoffset = 0;
-        }
+      if (this.__clientHeight > this.__contentHeight * this.__zoomLevel) {
+        yoffset = (this.__clientHeight - this.__contentHeight * this.__zoomLevel) / 2;
+      } else {
+        yoffset = 0;
+      }
     }
 
     this.__leftOffset = xoffset;
