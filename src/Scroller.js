@@ -976,7 +976,7 @@ export default class {
 
       // Push values out
       if (this.__callback) {
-        self.__callback(left - this.__leftOffset, top - this.__topOffset, zoom);
+        this.__callback(left - this.__leftOffset, top - this.__topOffset, zoom);
       }
 
       // Fix max scroll ranges
