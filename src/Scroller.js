@@ -337,6 +337,20 @@ export default class {
   }
 
   /**
+   * Returns the dimensions
+   *
+   * @return {{clientWidth: number, clientHeight: number, contentWidth: number, contentHeight: number}} `left` and `top` scroll position and `zoom` level
+   */
+  getDimensions() {
+    return {
+      clientWidth: this.__clientWidth,
+      clientHeight: this.__clientHeight,
+      contentWidth: this.__contentWidth,
+      contentHeight: this.__contentHeight
+    };
+  }
+
+  /**
    * Returns the scroll position and zooming values
    *
    * @return {{top: number, left: number, zoom: number}} `left` and `top` scroll position and `zoom` level

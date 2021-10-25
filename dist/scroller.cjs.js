@@ -609,6 +609,22 @@ var _default = /*#__PURE__*/function () {
       this.scrollTo(this.__scrollLeft, this.__scrollTop, true);
     }
     /**
+     * Returns the dimensions
+     *
+     * @return {{clientWidth: number, clientHeight: number, contentWidth: number, contentHeight: number}} `left` and `top` scroll position and `zoom` level
+     */
+
+  }, {
+    key: "getDimensions",
+    value: function getDimensions() {
+      return {
+        clientWidth: this.__clientWidth,
+        clientHeight: this.__clientHeight,
+        contentWidth: this.__contentWidth,
+        contentHeight: this.__contentHeight
+      };
+    }
+    /**
      * Returns the scroll position and zooming values
      *
      * @return {{top: number, left: number, zoom: number}} `left` and `top` scroll position and `zoom` level
